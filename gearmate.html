@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GearMate — Sélecteur de Compatibilité Jantes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep:    #0d0d0f;
+      --bg-card:    #141417;
+      --bg-panel:   #1a1a1f;
+      --border:     #2a2a32;
+      --orange:     #ff6a00;
+      --orange-hot: #ff9a3c;
+      --orange-glow:#ff6a0033;
+      --white:      #f0ece4;
+      --muted:      #7a7a8a;
+      --green:      #3dffa0;
+      --red:        #ff4560;
+      --yellow:     #ffd166;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--bg-deep);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,106,0,.015) 3px, rgba(255,106,0,.015) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,.012) 40px, rgba(255,255,255,.012) 41px);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative; z-index: 10;
+      padding: 28px 40px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,106,0,.06) 0%, transparent 100%);
+    }
+
+    .logo {
+      display: flex; align-items: baseline; gap: 10px;
+    }
+    .logo-mark {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      color: var(--orange);
+      letter-spacing: 3px;
+      line-height: 1;
+      text-shadow: 0 0 40px var(--orange-glow), 0 0 80px var(--orange-glow);
+    }
+    .logo-sub {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .75rem;
+      letter-spacing: 4px;
+      color: var(--muted);
+      text-transform: uppercase;
+      align-self: center;
+    }
+
+    .badge {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .7rem;
+      letter-spacing: 3px;
+      color: var(--orange);
+      border: 1px solid var(--orange);
+      padding: 4px 12px;
+      text-transform: uppercase;
+      opacity: .7;
+    }
+
+    /* ── HERO STRIP ── */
+    .hero-strip {
+      position: relative; z-index: 5;
+      padding: 60px 40px 50px;
+      text-align: center;
+    }
+    .hero-strip h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.4rem, 7vw, 5.5rem);
+      letter-spacing: 4px;
+      line-height: 1;
+      color: var(--white);
+    }
+    .hero-strip h1 span {
+      color: var(--orange);
+      text-shadow: 0 0 60px rgba(255,106,0,.4);
+    }
+    .hero-strip p {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      position: relative; z-index: 5;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── SELECTOR CARD ── */
+    .selector-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--orange);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .selector-card::after {
+      content: '';
+      position: absolute; top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(255,106,0,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .7rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 28px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .card-title::before {
+      content: '';
+      display: inline-block;
+      width: 24px; height: 2px;
+      background: var(--orange);
+    }
+
+    .selectors-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .select-group {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .select-group label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .72rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    select {
+      width: 100%;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      color: var(--white);
+      font-family: 'Barlow', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      padding: 14px 16px;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ff6a00' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    select:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px var(--orange-glow);
+    }
+    select option { background: var(--bg-panel); }
+
+    /* spec pill under select */
+    .spec-pill {
+      display: inline-block;
+      margin-top: 6px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .72rem;
+      letter-spacing: 2px;
+      color: var(--orange-hot);
+      background: rgba(255,106,0,.1);
+      padding: 3px 10px;
+      min-height: 22px;
+      transition: opacity .3s;
+    }
+
+    /* arrow divider */
+    .arrow-divider {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      color: var(--muted);
+    }
+    .arrow-divider svg { width: 32px; animation: pulse-arrow 2s ease-in-out infinite; }
+    @keyframes pulse-arrow {
+      0%,100% { opacity: .3; transform: translateX(0); }
+      50%      { opacity: 1;  transform: translateX(4px); }
+    }
+    .arrow-divider span {
+      font-size: .6rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted);
+    }
+
+    /* ── CHECK BUTTON ── */
+    .check-btn {
+      margin-top: 32px;
+      width: 100%;
+      background: var(--bg-panel);
+      border: 1px solid var(--orange);
+      color: var(--orange);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 4px;
+      padding: 16px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: color .2s;
+    }
+    .check-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--orange);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .3s ease;
+    }
+    .check-btn:hover::before { transform: scaleX(1); }
+    .check-btn:hover { color: #000; }
+    .check-btn span { position: relative; z-index: 1; }
+
+    /* ── RESULT PANEL ── */
+    #result {
+      margin-top: 24px;
+      display: none;
+      animation: slide-up .4s ease;
+    }
+    @keyframes slide-up {
+      from { opacity:0; transform: translateY(16px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    .result-card {
+      border: 1px solid var(--border);
+      padding: 28px 32px;
+      position: relative;
+    }
+
+    .result-card.compatible   { border-left: 4px solid var(--green); background: rgba(61,255,160,.04); }
+    .result-card.partial      { border-left: 4px solid var(--yellow); background: rgba(255,209,102,.04); }
+    .result-card.incompatible { border-left: 4px solid var(--red);   background: rgba(255,69,96,.04); }
+    .result-card.select-first { border-left: 4px solid var(--muted); background: var(--bg-panel); }
+
+    .result-status {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+    }
+    .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .compatible   .status-dot { background: var(--green);  box-shadow: 0 0 10px var(--green); }
+    .partial      .status-dot { background: var(--yellow); box-shadow: 0 0 10px var(--yellow); }
+    .incompatible .status-dot { background: var(--red);    box-shadow: 0 0 10px var(--red); }
+    .select-first .status-dot { background: var(--muted); }
+
+    .status-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .7rem; letter-spacing: 4px; text-transform: uppercase;
+    }
+    .compatible   .status-label { color: var(--green); }
+    .partial      .status-label { color: var(--yellow); }
+    .incompatible .status-label { color: var(--red); }
+    .select-first .status-label { color: var(--muted); }
+
+    .result-text {
+      font-size: 1rem;
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    /* highlight tag */
+    .tag {
+      display: inline-block;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .8rem;
+      letter-spacing: 2px;
+      padding: 2px 10px;
+      margin: 2px;
+    }
+    .tag-orange { background: rgba(255,106,0,.15); color: var(--orange-hot); border: 1px solid rgba(255,106,0,.3); }
+    .tag-green  { background: rgba(61,255,160,.1);  color: var(--green);      border: 1px solid rgba(61,255,160,.3); }
+
+    /* adapter details */
+    .adapter-details {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .adapter-box {
+      background: var(--bg-deep);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .adapter-box .val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--orange);
+      line-height: 1;
+    }
+    .adapter-box .lbl {
+      font-size: .72rem;
+      color: var(--muted);
+      letter-spacing: 2px;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    /* ── CTA BUTTON ── */
+    .cta-zone {
+      margin-top: 28px;
+      display: none;
+    }
+    .cta-btn {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--orange) 0%, var(--orange-hot) 100%);
+      border: none;
+      color: #000;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 4px;
+      padding: 20px 32px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform .15s, box-shadow .2s;
+      text-decoration: none;
+    }
+    .cta-btn::before {
+      content: '';
+      position: absolute; top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+      transition: left .5s ease;
+    }
+    .cta-btn:hover::before { left: 150%; }
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(255,106,0,.4);
+    }
+    .cta-btn:active { transform: translateY(0); }
+
+    .cta-btn svg { width: 22px; flex-shrink: 0; }
+    .cta-sub {
+      margin-top: 10px;
+      text-align: center;
+      font-size: .75rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    /* ── DATA TABLE ── */
+    .data-section {
+      margin-top: 48px;
+    }
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .7rem; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+    th {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .68rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted);
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(42,42,50,.6);
+      vertical-align: middle;
+    }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .bolt-count {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      color: var(--orange);
+    }
+    .pcd-val { font-weight: 600; }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 5;
+      text-align: center;
+      padding: 24px;
+      border-top: 1px solid var(--border);
+      font-size: .75rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      header { padding: 20px; }
+      .hero-strip { padding: 40px 20px 30px; }
+      main { padding: 0 16px 60px; }
+      .selector-card { padding: 24px 20px; }
+      .selectors-grid {
+        grid-template-columns: 1fr;
+      }
+      .arrow-divider {
+        flex-direction: row; justify-content: center;
+      }
+      .arrow-divider svg { transform: rotate(90deg); }
+      .result-card { padding: 20px; }
+      .cta-btn { font-size: 1.1rem; letter-spacing: 2px; padding: 16px 20px; }
+      th, td { padding: 10px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">GearMate</div>
+    <div class="logo-sub">Workshop Tools</div>
+  </div>
+  <div class="badge">Beta v1.0</div>
+</header>
+
+<!-- HERO -->
+<div class="hero-strip">
+  <h1>Compatibilité <span>Jantes Hybrides</span></h1>
+  <p>Sélectionnez votre 4×4 et les jantes cibles — l'outil calcule la faisabilité en temps réel.</p>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- SELECTOR CARD -->
+  <div class="selector-card">
+    <div class="card-title">Configurer la vérification</div>
+
+    <div class="selectors-grid">
+
+      <!-- 4x4 actuel -->
+      <div class="select-group">
+        <label>Votre 4×4 actuel</label>
+        <select id="sel-car" onchange="updateSpecs()">
+          <option value="">— Choisir un véhicule —</option>
+          <option value="suzuki">Suzuki (Jimny / Vitara)</option>
+          <option value="nissan">Nissan (Patrol / Navara)</option>
+          <option value="toyota">Toyota (Land Cruiser / Hilux)</option>
+          <option value="landrover">Land Rover (Defender / Discovery)</option>
+        </select>
+        <span class="spec-pill" id="pill-car">&nbsp;</span>
+      </div>
+
+      <!-- Arrow -->
+      <div class="arrow-divider">
+        <svg viewBox="0 0 32 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 8h28M22 2l8 6-8 6" stroke="#ff6a00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>vers</span>
+      </div>
+
+      <!-- Jantes souhaitées -->
+      <div class="select-group">
+        <label>Jantes souhaitées</label>
+        <select id="sel-rim" onchange="updateSpecs()">
+          <option value="">— Choisir les jantes —</option>
+          <option value="suzuki_rim">Jantes Suzuki — 5×139.7</option>
+          <option value="nissan_rim">Jantes Nissan — 5×150</option>
+          <option value="toyota_rim">Jantes Toyota — 6×139.7</option>
+          <option value="landrover_rim">Jantes Land Rover — 5×165.1</option>
+        </select>
+        <span class="spec-pill" id="pill-rim">&nbsp;</span>
+      </div>
+
+    </div><!-- /grid -->
+
+    <button class="check-btn" onclick="checkCompatibility()">
+      <span>⚙ Vérifier la compatibilité</span>
+    </button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result">
+    <div class="result-card" id="result-card">
+      <div class="result-status">
+        <div class="status-dot"></div>
+        <div class="status-label" id="result-label">—</div>
+      </div>
+      <div class="result-text" id="result-text">—</div>
+      <div class="adapter-details" id="adapter-details" style="display:none"></div>
+    </div>
+    <div class="cta-zone" id="cta-zone">
+      <a class="cta-btn" href="#" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="#000" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        Trouver mes cales au meilleur prix
+      </a>
+      <p class="cta-sub">Livraison express disponible · Pièces certifiées homologuées</p>
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLE -->
+  <div class="data-section">
+    <div class="section-title">Tableau des entraxes de référence</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Marque</th>
+          <th>Modèles</th>
+          <th>Boulons</th>
+          <th>PCD (mm)</th>
+          <th>Alésage central</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Suzuki</strong></td>
+          <td>Jimny, Vitara, Samurai</td>
+          <td><span class="bolt-count">5</span></td>
+          <td class="pcd-val">139.7</td>
+          <td>108.1 mm</td>
+        </tr>
+        <tr>
+          <td><strong>Nissan</strong></td>
+          <td>Patrol, Navara, X-Trail</td>
+          <td><span class="bolt-count">5</span></td>
+          <td class="pcd-val">150.0</td>
+          <td>110.1 mm</td>
+        </tr>
+        <tr>
+          <td><strong>Toyota</strong></td>
+          <td>Land Cruiser, Hilux, 4Runner</td>
+          <td><span class="bolt-count">6</span></td>
+          <td class="pcd-val">139.7</td>
+          <td>106.1 mm</td>
+        </tr>
+        <tr>
+          <td><strong>Land Rover</strong></td>
+          <td>Defender, Discovery, Range Rover</td>
+          <td><span class="bolt-count">5</span></td>
+          <td class="pcd-val">165.1</td>
+          <td>108.1 mm</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer>
+  © 2025 GearMate Workshop Tools · Vérifiez toujours auprès d'un professionnel avant installation
+</footer>
+
+<script>
+  // ── DATA ──────────────────────────────────────────────────────────
+  const vehicles = {
+    suzuki:    { label: 'Suzuki',     pcd: '5×139.7', bolts: 5, pcdVal: 139.7, cb: 108.1 },
+    nissan:    { label: 'Nissan',     pcd: '5×150',   bolts: 5, pcdVal: 150.0, cb: 110.1 },
+    toyota:    { label: 'Toyota',     pcd: '6×139.7', bolts: 6, pcdVal: 139.7, cb: 106.1 },
+    landrover: { label: 'Land Rover', pcd: '5×165.1', bolts: 5, pcdVal: 165.1, cb: 108.1 },
+  };
+
+  const rims = {
+    suzuki_rim:    { label: 'Suzuki',     pcd: '5×139.7', bolts: 5, pcdVal: 139.7 },
+    nissan_rim:    { label: 'Nissan',     pcd: '5×150',   bolts: 5, pcdVal: 150.0 },
+    toyota_rim:    { label: 'Toyota',     pcd: '6×139.7', bolts: 6, pcdVal: 139.7 },
+    landrover_rim: { label: 'Land Rover', pcd: '5×165.1', bolts: 5, pcdVal: 165.1 },
+  };
+
+  // Compatibility matrix: [carKey][rimKey] → result object
+  // status: 'compatible' | 'partial' | 'incompatible'
+  const matrix = {
+    suzuki: {
+      suzuki_rim:    { status:'compatible',   label:'Compatibilité native', text:'Les jantes Suzuki s\'adaptent parfaitement à votre Suzuki. Entraxe identique, aucune modification requise.', adapters:null, cta:false },
+      nissan_rim:    { status:'incompatible', label:'Incompatible',         text:'L\'entraxe 5×150 (Nissan) est trop différent du 5×139.7 (Suzuki). Aucune cale standard ne comble cet écart de façon sécurisée.', adapters:null, cta:false },
+      toyota_rim:    { status:'incompatible', label:'Incompatible',         text:'Les jantes Toyota (6×139.7) possèdent 6 boulons contre 5 pour votre Suzuki. Le nombre de boulons étant différent, l\'adaptation est impossible sans modification structurelle du moyeu.', adapters:null, cta:false },
+      landrover_rim: { status:'partial',      label:'Adaptation possible',  text:'Entraxe 5×165.1 (Land Rover) vs 5×139.7 (Suzuki) — écart de 25.4 mm par rayon. L\'adaptation est réalisable via des <strong>cales de changement d\'entraxe</strong> (spigot ring adapters homologuées). Épaisseurs recommandées :', adapters:[{val:'30mm',lbl:'Épaisseur A'},{val:'45mm',lbl:'Épaisseur B'},{val:'5×165→5×139',lbl:'Conversion PCD'},{val:'108.1mm',lbl:'Alésage CB'}], cta:true },
+    },
+    nissan: {
+      suzuki_rim:    { status:'incompatible', label:'Incompatible', text:'L\'entraxe Suzuki 5×139.7 n\'est pas compatible avec le Nissan 5×150. L\'écart de 10.3 mm par boulon dépasse les tolérances des adaptateurs disponibles.', adapters:null, cta:false },
+      nissan_rim:    { status:'compatible',   label:'Compatibilité native', text:'Entraxe identique 5×150. Montage direct possible — vérifiez uniquement l\'alésage central et l\'offset.', adapters:null, cta:false },
+      toyota_rim:    { status:'incompatible', label:'Incompatible', text:'6 boulons (Toyota) vs 5 boulons (Nissan). Incompatibilité structurelle, adaptation impossible sans refonte du moyeu.', adapters:null, cta:false },
+      landrover_rim: { status:'partial',      label:'Adaptation complexe',  text:'Écart de 15.1 mm entre 5×165.1 (LR) et 5×150 (Nissan). Des adaptateurs existent mais restent rares. Consulter un spécialiste en préparation 4×4 est fortement conseillé.', adapters:[{val:'15mm',lbl:'Écart PCD'},{val:'Rare',lbl:'Dispo marché'}], cta:true },
+    },
+    toyota: {
+      suzuki_rim:    { status:'incompatible', label:'Incompatible', text:'5 boulons (Suzuki) vs 6 boulons (Toyota). Incompatibilité de nombre de fixations. Adaptation structurellement impossible.', adapters:null, cta:false },
+      nissan_rim:    { status:'incompatible', label:'Incompatible', text:'5 boulons (Nissan) vs 6 boulons (Toyota). Le moyeu Toyota 6×139.7 ne peut pas recevoir de jantes 5 trous sans remplacement complet du moyeu.', adapters:null, cta:false },
+      toyota_rim:    { status:'compatible',   label:'Compatibilité native', text:'Entraxe 6×139.7 identique. Montage direct — vérifier offset (ET) et alésage central (106.1mm).', adapters:null, cta:false },
+      landrover_rim: { status:'incompatible', label:'Incompatible', text:'6 boulons Toyota vs 5 boulons Land Rover, ET entraxe différent. Double incompatibilité, aucune solution homologuée connue.', adapters:null, cta:false },
+    },
+    landrover: {
+      suzuki_rim:    { status:'partial',      label:'Adaptation possible',  text:'Jantes Suzuki 5×139.7 sur Land Rover 5×165.1 — même démarche inverse. Des adaptateurs 30mm/45mm permettent la conversion avec bagues de centrage adaptées.', adapters:[{val:'30mm',lbl:'Option 1'},{val:'45mm',lbl:'Option 2'},{val:'108.1mm',lbl:'Alésage CB'}], cta:true },
+      nissan_rim:    { status:'partial',      label:'Adaptation complexe',  text:'Écart 5×165.1 → 5×150 (15.1mm). Adaptateurs disponibles en spécialistes 4×4, montage délicat — bilan géométrique recommandé.', adapters:[{val:'15mm',lbl:'Écart PCD'}], cta:true },
+      toyota_rim:    { status:'incompatible', label:'Incompatible', text:'6 boulons Toyota vs 5 boulons Land Rover. Incompatibilité de fixations, impossible à adapter.', adapters:null, cta:false },
+      landrover_rim: { status:'compatible',   label:'Compatibilité native', text:'Entraxe 5×165.1 identique. Jantes interchangeables nativement entre modèles Land Rover (vérifier offset et saison pneumatique).', adapters:null, cta:false },
+    },
+  };
+
+  // ── UPDATE SPEC PILLS ─────────────────────────────────────────────
+  function updateSpecs() {
+    const carKey = document.getElementById('sel-car').value;
+    const rimKey = document.getElementById('sel-rim').value;
+    const pillCar = document.getElementById('pill-car');
+    const pillRim = document.getElementById('pill-rim');
+
+    pillCar.textContent = carKey ? `PCD : ${vehicles[carKey].pcd}` : '';
+    pillRim.textContent = rimKey ? `PCD : ${rims[rimKey].pcd}` : '';
+
+    // hide result if re-selecting
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('cta-zone').style.display = 'none';
+  }
+
+  // ── CHECK ─────────────────────────────────────────────────────────
+  function checkCompatibility() {
+    const carKey = document.getElementById('sel-car').value;
+    const rimKey = document.getElementById('sel-rim').value;
+
+    const resultEl   = document.getElementById('result');
+    const cardEl     = document.getElementById('result-card');
+    const labelEl    = document.getElementById('result-label');
+    const textEl     = document.getElementById('result-text');
+    const adaptersEl = document.getElementById('adapter-details');
+    const ctaZone    = document.getElementById('cta-zone');
+
+    if (!carKey || !rimKey) {
+      // show prompt
+      resultEl.style.display = 'block';
+      cardEl.className = 'result-card select-first';
+      labelEl.textContent = 'Sélection incomplète';
+      textEl.innerHTML = 'Veuillez choisir <strong>votre 4×4</strong> et les <strong>jantes cibles</strong> pour lancer la vérification.';
+      adaptersEl.style.display = 'none';
+      ctaZone.style.display = 'none';
+      return;
+    }
+
+    const res = matrix[carKey][rimKey];
+
+    // force re-animation
+    resultEl.style.display = 'none';
+    void resultEl.offsetHeight;
+    resultEl.style.display = 'block';
+
+    cardEl.className = `result-card ${res.status}`;
+    labelEl.textContent = res.label;
+    textEl.innerHTML = res.text;
+
+    if (res.adapters && res.adapters.length) {
+      adaptersEl.style.display = 'grid';
+      adaptersEl.innerHTML = res.adapters.map(a =>
+        `<div class="adapter-box"><div class="val">${a.val}</div><div class="lbl">${a.lbl}</div></div>`
+      ).join('');
+    } else {
+      adaptersEl.style.display = 'none';
+    }
+
+    ctaZone.style.display = res.cta ? 'block' : 'none';
+
+    // scroll into view on mobile
+    resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+
+</body>
+</html>
